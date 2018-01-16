@@ -1,11 +1,7 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.18;
 
 contract FraudReporting {
-    struct Bounty {
-        address creator;
-        uint bountyAmount;
-    }
-
+    
     struct FraudReport {
         address reporter;
         string url;
@@ -13,44 +9,52 @@ contract FraudReporting {
         bool isFraud;
     }
 
-    mapping (uint => FraudReport) fraudReports;
-    uint fraudReportCounter;
-    mapping (address => uint) bounties;
-    uint bountyCounter;
+    mapping (address => uint) public balances;
+    mapping (uint => FraudReport) public fraudReports;
+    uint public fraudReportsCounter;
+    mapping (address => uint) public bounties;
+    uint public bountiesCounter;
 
     function FraudReporting() public {
-        
+        fraudReportsCounter = 0;
+        bountiesCounter = 0;
     }
 
     function createFraudReport(string url) public returns (uint) {
-        
+        var fraudReportId = fraudReportsCounter++;
+        fraudReports[fraudReportId] = FraudReport(msg.sender, url, 0, false);
+        return fraudReportId;
     }
 
     function approveFraudReport(uint fraudReportId) public returns (bool) {
-        
+        fraudReports[fraudReportId].isFraud = true;
+        return true;
     }
 
-    function upVoteFraudReport(uint fraudReportId) public returns (bool) {
-        
+    function upVoteFraudReport(uint fraudReportId) public {
+        fraudReports[fraudReportId].votes++;
     }
 
-    function downVoteFraudReport(uint fraudReportId) public returns (bool) {
-        
+    function downVoteFraudReport(uint fraudReportId) public {
+        fraudReports[fraudReportId].votes--;
     }
 
-    function createBounty(uint amount) public returns (uint) {
-        
+    function createBounty(uint amount) public {
+        require (balances[msg.sender] >= amount);
+        bounties[msg.sender] = amount;
+        bountiesCounter++;
     }
 
-    function updateBounty(uint bountyId, uint amount) public returns (bool) {
-        
+    function addBalance() payable public returns (uint) {
+        balances[msg.sender] += msg.value;
+        return balances[msg.sender];
     }
-
-    function rewardBounty(uint bountyId, address bountyHunter) public returns (bool) {
-        
-    }
-
-    function isFraudReportAFraud(uint fraudReportId) constant returns (bool) {
-        
+    
+    function rewardBounty(uint fraudReportId) public {
+        require (balances[msg.sender] >= bounties[msg.sender]);
+        balances[msg.sender] -= bounties[msg.sender];
+        fraudReports[fraudReportId].reporter.transfer(bounties[msg.sender]);
+        fraudReports[fraudReportId].isFraud = true;
+        // balances[bountyHunter] += bounties[msg.sender];
     }
 }
