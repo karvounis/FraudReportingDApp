@@ -48,13 +48,15 @@ contract FraudReporting {
     }
 
     /** Creates a Bounty given a bounty amount */
-    function createBounty(uint bountyAmount) public {
+    function createBounty(uint bountyAmount) public returns (uint) {
         require (msg.sender.balance >= bountyAmount);
+
         var bountyId = bountiesCounter++;
         bounties[bountyId] = Bounty(msg.sender, bountyAmount, 0);
         BountyCreated(bountyAmount, bountyId);
+        return bountyId;
     }
-
+    
     /** 
         Rewards Bounty money to the address that generated the Fraud Report. 
         The Fraud Report must not have claimed the bounty again in the past.
