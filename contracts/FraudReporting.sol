@@ -3,32 +3,65 @@ pragma solidity ^0.4.18;
 contract FraudReporting {
     
     struct FraudReport {
-        address reporter;
+        address bountyHunter;
         string url;
+        uint bountyId;
+        bool bountyClaimed;
         int votes;
-        bool isFraud;
     }
 
-    mapping (address => uint) public balances;
+    struct Bounty {
+        address bountyCreator;
+        uint bountyAmount;
+        uint timesClaimed;
+    }
+
     mapping (uint => FraudReport) public fraudReports;
     uint public fraudReportsCounter;
-    mapping (address => uint) public bounties;
+    
+    mapping (uint => Bounty) public bounties;
     uint public bountiesCounter;
 
-    function FraudReporting() public {
-        fraudReportsCounter = 0;
-        bountiesCounter = 0;
+    uint public bountiesClaimed;
+
+    event FraudReportCreated(string url, uint bountyId);
+    event BountyCreated(uint bountyAmount);
+    event Log(string message);
+
+    modifier bountyIdExists(uint bountyId) {
+        require (bountyId < bountiesCounter);
+        _;
     }
 
-    function createFraudReport(string url) public returns (uint) {
+    function rewardBountyToFraudReport(uint fraudReportId) payable public returns (bool) {
+        require (msg.sender == bounties[fraudReports[fraudReportId].bountyId].bountyCreator);
+        require(fraudReports[fraudReportId].bountyClaimed == false);
+       
+        fraudReports[fraudReportId].bountyHunter.transfer(bounties[fraudReports[fraudReportId].bountyId].bountyAmount);
+        fraudReports[fraudReportId].bountyClaimed = true;
+        bounties[fraudReports[fraudReportId].bountyId].timesClaimed++;
+        bountiesClaimed++;
+        return true;
+    }
+
+    function createFraudReport(string url, uint bountyId) public bountyIdExists(bountyId) returns (uint) {
+        require(msg.sender != bounties[bountyId].bountyCreator);
+
         var fraudReportId = fraudReportsCounter++;
-        fraudReports[fraudReportId] = FraudReport(msg.sender, url, 0, false);
+        fraudReports[fraudReportId] = FraudReport(msg.sender, url, bountyId, false, 0);
+        FraudReportCreated(url, bountyId);
         return fraudReportId;
     }
 
-    function approveFraudReport(uint fraudReportId) public returns (bool) {
-        fraudReports[fraudReportId].isFraud = true;
-        return true;
+    function createBounty(uint bountyAmount) public {
+        require (msg.sender.balance >= bountyAmount);
+        var bountyId = bountiesCounter++;
+        bounties[bountyId] = Bounty(msg.sender, bountyAmount, 0);
+        BountyCreated(bountyAmount);
+    }
+
+    function getEthBalanceOfSender() public constant returns (uint) {
+        return msg.sender.balance;
     }
 
     function upVoteFraudReport(uint fraudReportId) public {
@@ -37,24 +70,5 @@ contract FraudReporting {
 
     function downVoteFraudReport(uint fraudReportId) public {
         fraudReports[fraudReportId].votes--;
-    }
-
-    function createBounty(uint amount) public {
-        require (balances[msg.sender] >= amount);
-        bounties[msg.sender] = amount;
-        bountiesCounter++;
-    }
-
-    function addBalance() payable public returns (uint) {
-        balances[msg.sender] += msg.value;
-        return balances[msg.sender];
-    }
-    
-    function rewardBounty(uint fraudReportId) public {
-        require (balances[msg.sender] >= bounties[msg.sender]);
-        balances[msg.sender] -= bounties[msg.sender];
-        fraudReports[fraudReportId].reporter.transfer(bounties[msg.sender]);
-        fraudReports[fraudReportId].isFraud = true;
-        // balances[bountyHunter] += bounties[msg.sender];
     }
 }
