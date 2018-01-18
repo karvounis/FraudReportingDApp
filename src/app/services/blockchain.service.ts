@@ -57,21 +57,19 @@ export class BlockchainService {
       });
     })
   }
+
   public async getBalanceForAccountAddress(address) {
     return this.web3.fromWei(this.web3.eth.getBalance(address).toString());
   }
 
-  public createBounty(amount, fromAddress) {
-    this.FraudReporting.deployed().then( (contractInstance) => {
-      contractInstance.createBounty(amount, {from: fromAddress}).then( (res) => {
-        console.log(res);
-      }).catch(error=> console.error(error));
-    })
+  public async getFraudReportingContract() {
+    return this.FraudReporting.deployed();
   }
 
-  public createFraudReport(url:string, bountyId:number, fromAddress) {
+  public rewardBounty(fraudReportId: number, fromAddress: string, etherReward) {
     this.FraudReporting.deployed().then( (contractInstance) => {
-      contractInstance.createFraudReport(url, bountyId, {from: fromAddress, gas:4000000}).then( (res) => {
+      contractInstance.rewardBountyToFraudReport(fraudReportId, {from: fromAddress, value: etherReward * 10**18, gas:4000000}).then( (res) => {
+        console.log(res);
       }).catch(error=> console.error(error));
     })
   }
