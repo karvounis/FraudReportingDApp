@@ -15,5 +15,29 @@ WORKS ????
       Address of the account is: {{ hero.address }}. Balance: {{hero.balance}} Ether.
     </li>
   </ul>
-  {{bountiesCounter}}
-  <app-create-bounty></app-create-bounty>
+
+  <div class="container">
+    <h1>Create Bounty</h1>
+    <form (ngSubmit)="createBounty()" #heroForm="ngForm">
+      <div class="form-group">
+        <label for="name">Amount</label>
+        <input type="text" class="form-control" name="bountyAmount" [(ngModel)]="bountyAmount" id="bountyAmount" required>
+      </div>
+      <button type="submit" class="btn btn-success">Create Bounty</button>
+    </form>
+  </div>
+
+  <div class="container">
+    <h1>Create Bounty</h1>
+    <form (ngSubmit)="createFraudReport()" #heroForm="ngForm">
+      <div class="form-group">
+        <label for="name">Url</label>
+        <input type="text" class="form-control" name="bountyAmount" [(ngModel)]="fraudReportUrl" id="fraudReportUrl" required>
+      </div>
+      <div class="form-group">
+        <label for="name">Bounty id</label>
+        <input type="text" class="form-control" name="bountyAmount" [(ngModel)]="fraudReportBountyId" id="fraudReportBountyId" required>
+      </div>
+      <button type="submit" class="btn btn-success">Create Fraud Report</button>
+    </form>
+  </div>

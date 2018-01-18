@@ -32,43 +32,47 @@ export class BlockchainService {
 
   constructor() {
     if (typeof this.web3 !== 'undefined') {
-      console.warn("Using web3 detected from external source like Metamask")
-      // Use Mist/MetaMask's provider
       this.web3 = new Web3(this.web3.currentProvider);
     } else {
-      console.warn("No web3 detected. Falling back to http://localhost:8545. You should remove this fallback when you deploy live, as it's inherently insecure. Consider switching to Metamask for development. More info here: http://truffleframework.com/tutorials/truffle-and-metamask");
-      // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
       this.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
     }
-    console.log("this.web3 in constructor = ", this.web3);
     this.FraudReporting.setProvider(this.web3.currentProvider);
  }
 
- public async getAccounts() {
-  this.web3.eth.getAccounts((err, accs) => {
-    this.accounts = accs;
-    this.accountsObservable.next(accs);
-  });
-}
-
-public getAccountsOfWeb3() {
-  return this.web3.eth.accounts;
-}
-
-public async getBountiesCounter() {
-  this.FraudReporting.deployed().then( (contractInstance) => {
-    contractInstance.bountiesCounter.call().then( (bountiesCounter) => {
-      return bountiesCounter.toString();
+  public async getAccounts() {
+    this.web3.eth.getAccounts((err, accs) => {
+      this.accounts = accs;
+      this.accountsObservable.next(accs);
     });
-  })
-}
-public async getBalanceForAccountAddress(address) {
-  return this.web3.fromWei(this.web3.eth.getBalance(address).toString());
-  // this.web3.eth.getBalance(address, (error, result) => {
-  //   console.log("account balance", result)
-  //   return result.toString();
-  //   //$("#contract-balance").html(web3.fromWei(result.toString()) + " Ether");
-  // });
-}
+  }
 
+  public getAccountsOfWeb3() {
+    return this.web3.eth.accounts;
+  }
+
+  public async getBountiesCounter() {
+    this.FraudReporting.deployed().then( (contractInstance) => {
+      contractInstance.bountiesCounter.call().then( (bountiesCounter) => {
+        return bountiesCounter.toString();
+      });
+    })
+  }
+  public async getBalanceForAccountAddress(address) {
+    return this.web3.fromWei(this.web3.eth.getBalance(address).toString());
+  }
+
+  public createBounty(amount, fromAddress) {
+    this.FraudReporting.deployed().then( (contractInstance) => {
+      contractInstance.createBounty(amount, {from: fromAddress}).then( (res) => {
+        console.log(res);
+      }).catch(error=> console.error(error));
+    })
+  }
+
+  public createFraudReport(url:string, bountyId:number, fromAddress) {
+    this.FraudReporting.deployed().then( (contractInstance) => {
+      contractInstance.createFraudReport(url, bountyId, {from: fromAddress, gas:4000000}).then( (res) => {
+      }).catch(error=> console.error(error));
+    })
+  }
 }

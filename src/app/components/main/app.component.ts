@@ -17,6 +17,9 @@ export class AppComponent {
   selectedAccount = '';
   balance;
   bountiesCounter;
+  bountyAmount;
+  fraudReportUrl;
+  fraudReportBountyId;
 
   acts = [];
   constructor(private BlockchainService: BlockchainService) {
@@ -39,7 +42,7 @@ export class AppComponent {
       }
     });
   }
-
+  
   refreshAccountsAndBalances() {
     let accounts = this.BlockchainService.getAccountsOfWeb3();
     this.acts = [];
@@ -52,6 +55,15 @@ export class AppComponent {
         this.acts.push(data);
       });
     }
+  }
+  createBounty() { 
+    console.log('Create bounty');
+    this.BlockchainService.createBounty(this.bountyAmount, this.selectedAccount);
+   }
+   
+  createFraudReport() {
+    console.log('Create fraud report');
+    this.BlockchainService.createFraudReport(this.fraudReportUrl, this.fraudReportBountyId, this.selectedAccount);
   }
 
   accountSelected() {
