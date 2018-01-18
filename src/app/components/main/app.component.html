@@ -1,2 +1,19 @@
 TEST !!!!!!
 WORKS ????
+<button id="send" (click)="getBountiesCounter()">Send MetaCoin</button>
+
+<select [(ngModel)]="selectedAccount" (change)="accountSelected()">
+    <option *ngFor="let account of accounts" value= {{account}}>
+        {{account}}
+    </option>
+  </select>
+
+  {{selectedAccount}}
+  {{balance}}
+  <ul>
+    <li *ngFor="let hero of acts">
+      Address of the account is: {{ hero.address }}. Balance: {{hero.balance}} Ether.
+    </li>
+  </ul>
+  {{bountiesCounter}}
+  <app-create-bounty></app-create-bounty>

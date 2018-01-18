@@ -9,10 +9,11 @@ import { AppComponent } from './components/main/app.component';
 
 //services
 import { BlockchainService } from './services/blockchain.service';
+import { CreateBountyComponent } from './components/create-bounty/create-bounty.component';
 
 @NgModule({
   declarations: [ // components / directives / pipes
-      AppComponent
+      AppComponent, CreateBountyComponent
   ],
   imports: [ // put all your modules here angular+ 3rd party
       BrowserModule,
