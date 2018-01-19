@@ -25,6 +25,8 @@ export class AppComponent {
   etherReward;
   logs = [];
 
+  newEthToEurPrice = 0;
+
   acts = [];
   constructor(private BlockchainService: BlockchainService) {
     this.watchAccount();
@@ -33,6 +35,18 @@ export class AppComponent {
     setInterval(() => {this.refreshAccountsAndBalances()}, 10000);
     setInterval(() => {this.refreshBountiesCounter()}, 5000);
     setInterval(() => {this.refreshFraudReportsCounter()}, 4000);
+    setInterval(() => {this.refreshEthereumPrice()}, 2000);
+  }
+
+  refreshEthereumPrice() {
+    this.BlockchainService.getPriceForCoin('ETH','EUR').subscribe((data) => {
+      let body = data.text();  // If response is a JSON use json()
+   if (body) {
+        let bodyParsed = JSON.parse(body);
+        let euroPrice = bodyParsed.EUR;
+        this.newEthToEurPrice = euroPrice;
+      }
+    });
   }
 
   watchAccount() {
