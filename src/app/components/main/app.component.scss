@@ -1,3 +1,8 @@
-h1 {
-  font-size: 48px;
+.borderless tr td {
+  border: none !important;
+  padding: 0px !important;
+}
+
+.padding-10px {
+  padding: 10px;
 }

@@ -14,7 +14,7 @@ export class AppComponent {
   accounts: string[];
   FraudReporting: any;
   status = '';
-  selectedAccount = '';
+  selectedAccount;
   balance;
   bountiesCounter;
   bountyAmount;
@@ -23,6 +23,7 @@ export class AppComponent {
   fraudReportsCounter;
   fraudReportIdReward;
   etherReward;
+  logs = [];
 
   acts = [];
   constructor(private BlockchainService: BlockchainService) {
@@ -48,19 +49,15 @@ export class AppComponent {
   }
   
   refreshBountiesCounter() {
-    this.BlockchainService.getFraudReportingContract().then((contractInstance) => {
-      contractInstance.bountiesCounter.call().then((res) => {
-        this.bountiesCounter = res.toString();
-      }).catch(error=> console.error(error));
-      });
+    this.BlockchainService.getBountiesCounter().then((res) => {
+      this.bountiesCounter = res.toString();
+    })
   }
 
   refreshFraudReportsCounter() {
-    this.BlockchainService.getFraudReportingContract().then((contractInstance) => {
-      contractInstance.fraudReportsCounter.call().then((res) => {
+    this.BlockchainService.getFraudReportsCounter().then((res) => {
         this.fraudReportsCounter = res.toString();
-      }).catch(error=> console.error(error));
-      });
+    }).catch(error=> console.error(error));
   }
 
   refreshAccountsAndBalances() {
@@ -82,6 +79,8 @@ export class AppComponent {
     this.BlockchainService.getFraudReportingContract().then((contractInstance) => {
       contractInstance.createBounty(this.bountyAmount * 10**18, {from: this.selectedAccount}).then( (res) => {
         console.log(res);
+        this.bountiesCounter++;
+        this.logToPage('Address ' + this.selectedAccount + ' successfully created a Bounty');
       }).catch(error=> console.error(error));
     })
    }
@@ -91,22 +90,18 @@ export class AppComponent {
     this.BlockchainService.getFraudReportingContract().then((contractInstance) => {
       contractInstance.createFraudReport(this.fraudReportUrl, this.fraudReportBountyId, {from: this.selectedAccount, gas:4000000}).then( (res) => {
         console.log(res);
+        this.fraudReportsCounter++;
+        this.logToPage('Address ' + this.selectedAccount + ' successfully created a Fraud report');
       }).catch(error=> console.error(error));
     })
   }
   
   rewardBountyToFraudReport() {
     console.log('Reward bounty');
-    this.BlockchainService.rewardBounty(this.fraudReportIdReward, this.selectedAccount, this.etherReward);
-  }
-
-  getAllFraudReports() {
-    this.BlockchainService.getFraudReportingContract().then((contractInstance) => {
-      contractInstance.fraudReportsCounter.call().then((res) => {
-        console.log(res)
-        this.fraudReportsCounter = res.toString();
-      }).catch(error=> console.error(error));
-      });
+    this.BlockchainService.rewardBounty(this.fraudReportIdReward, this.selectedAccount, this.etherReward).then( (res) => {
+      console.log(res);
+      this.logToPage('Address ' + this.selectedAccount + ' successfully rewarded ' + this.etherReward + ' to Fraud report id ' + this.fraudReportIdReward);
+    }).catch(error=> console.error(error));
   }
 
   accountSelected() {
@@ -114,5 +109,13 @@ export class AppComponent {
     this.BlockchainService.getBalanceForAccountAddress(this.selectedAccount).then((res) => {
       this.balance = res;
     });
+  }
+  
+  logToPage(message: string): void {
+    this.logs.push(message);
+  }
+
+  onlyNumberKey(event) {
+    return (event.charCode == 8 || event.charCode == 0) ? null : event.charCode >= 48 && event.charCode <= 57;
   }
 };

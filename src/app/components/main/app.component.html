@@ -1,58 +1,83 @@
-<select [(ngModel)]="selectedAccount" (change)="accountSelected()">
-    <option *ngFor="let account of accounts" value= {{account}}>
-        {{account}}
-    </option>
-  </select>
-
-  {{selectedAccount}}
-  {{balance}}
-  <ul>
-    <li *ngFor="let hero of acts">
-      Address of the account is: {{ hero.address }}. Balance: {{hero.balance}} Ether.
-    </li>
-  </ul>
-
-  <div class="container">
-    <h1>Create Bounty</h1>
-    <form (ngSubmit)="createBounty()" #heroForm="ngForm">
-      <div class="form-group">
-        <label for="name">Amount</label>
-        <input type="text" class="form-control" name="bountyAmount" [(ngModel)]="bountyAmount" id="bountyAmount" required>
-      </div>
-      <button type="submit" class="btn btn-success">Create Bounty</button>
-    </form>
+<div class="container container fluid">
+  <div class="row padding-10px">
+    <h1>Global Fraud Reporting Tool</h1>      
   </div>
-
-  <div class="container">
-    <h1>Create Fraud Report</h1>
-    <form (ngSubmit)="createFraudReport()" #heroForm="ngForm">
-      <div class="form-group">
-        <label for="name">Url</label>
-        <input type="text" class="form-control" name="fraudReportUrl" [(ngModel)]="fraudReportUrl" id="fraudReportUrl" required>
-      </div>
-      <div class="form-group">
-        <label for="name">Bounty id</label>
-        <input type="text" class="form-control" name="fraudReportBountyId" [(ngModel)]="fraudReportBountyId" id="fraudReportBountyId" required>
-      </div>
-      <button type="submit" class="btn btn-success">Create Fraud Report</button>
-    </form>
+  <div class="row padding-10px">
+    <h3>Powered by Ethereum Blockchain</h3>
   </div>
-
-  <div class="container">
-    <h1>Reward Bounty</h1>
-    <form (ngSubmit)="rewardBountyToFraudReport()" #heroForm="ngForm">
-      <div class="form-group">
-        <label for="name">FraudReportId</label>
-        <input type="text" class="form-control" name="fraudReportIdReward" [(ngModel)]="fraudReportIdReward" id="fraudReportIdReward" required>
-      </div>
-      <div class="form-group">
-        <label for="name">Ether Value</label>
-        <input type="text" class="form-control" name="etherReward" [(ngModel)]="etherReward" id="etherReward" required>
-      </div>
-      <button type="submit" class="btn btn-success">Reward Bounty</button>
-    </form>
+  <div class="row padding-10px">
+    <table class="table">
+      <tbody>
+        <tr>
+        <th>Address</th>
+        <th>Balance</th>
+      </tr>
+      <tr *ngFor="let act of acts">
+        <td>{{ act.address }}</td>
+        <td>{{ act.balance }} Ether</td>
+      </tr>
+      </tbody>
+    </table>
   </div>
-
-  Fraud reports:{{fraudReportsCounter}}
-
-  Bounties: {{bountiesCounter}}
+  <div class="row padding-10px">
+      <div class="col">
+      Select an account: 
+      </div>
+      <div class="col">
+      <select [(ngModel)]="selectedAccount" (change)="accountSelected()">
+          <option *ngFor="let account of accounts" value= {{account}}>
+              {{account}}
+          </option>
+        </select>
+      </div>
+  </div>
+  <div class="row padding-10px" [hidden]="!selectedAccount">
+    <div class="col">
+        <h5>Create Bounty</h5>
+        <form (ngSubmit)="createBounty()" #heroForm="ngForm">
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Amount" name="bountyAmount" [(ngModel)]="bountyAmount" id="bountyAmount" (keypress)="onlyNumberKey($event)" required>
+            </div>
+            <button type="submit" class="btn btn-success">Create Bounty</button>
+          </form>
+    </div>
+    <div class="col">
+        <h5>Create Fraud Report</h5>
+            <form (ngSubmit)="createFraudReport()" #heroForm="ngForm">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Url" name="fraudReportUrl" [(ngModel)]="fraudReportUrl" id="fraudReportUrl" required>
+              </div>
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Bounty id" name="fraudReportBountyId" [(ngModel)]="fraudReportBountyId" id="fraudReportBountyId" (keypress)="onlyNumberKey($event)" required>
+              </div>
+              <button type="submit" class="btn btn-success">Create Fraud Report</button>
+            </form>
+          </div>
+      <div class="col">
+          <h5>Reward Bounty</h5>
+          <form (ngSubmit)="rewardBountyToFraudReport()" #heroForm="ngForm">
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Fraud Report id" name="fraudReportIdReward" [(ngModel)]="fraudReportIdReward" id="fraudReportIdReward" (keypress)="onlyNumberKey($event)" required>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" placeholder="Ether" name="etherReward" [(ngModel)]="etherReward" id="etherReward" (keypress)="onlyNumberKey($event)" required>
+            </div>
+            <button type="submit" class="btn btn-success">Reward Bounty</button>
+          </form>
+      </div>
+  </div>
+  <div class="row padding-10px">
+    <div class="col">
+        <h5>Bounties </h5>{{bountiesCounter}}
+          </div>
+        <div class="col">
+            <h5>Fraud Reports</h5> {{fraudReportsCounter}}
+        </div>
+    </div>
+    <div class="row padding-10px">
+    <div class="col">
+        <h5>Logs</h5>
+        <pre *ngFor="let log of logs">{{log}}</pre>
+    </div>
+  </div>
+</div>

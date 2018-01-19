@@ -1,34 +1,17 @@
 import { Injectable } from '@angular/core';
-// Import the page's CSS. Webpack will know what to do with it.
 import {Subject} from 'rxjs/Rx';
-import { retry } from 'rxjs/operator/retry';
 
-// Import libraries we need.
 const Web3 = require('web3');
 const contract = require('truffle-contract');
 const fraud_reporting_artifacts = require('../../../build/contracts/FraudReporting.json');
 
-/*
- * When you compile and deploy your Voting contract,
- * truffle stores the abi and deployed address in a json
- * file in the build directory. We will use this information
- * to setup a Voting abstraction. We will use this abstraction
- * later to create an instance of the Voting contract.
- * Compare this against the index.js from our previous tutorial to see the difference
- * https://gist.github.com/maheshmurthy/f6e96d6b3fff4cd4fa7f892de8a1a1b4#file-index-js
- */
 @Injectable()
 export class BlockchainService {
   private web3: any;
   public accounts: string[];
-  public ready = false;
-  public MetaCoin: any;
   public accountsObservable = new Subject<string[]>();
   
   FraudReporting = contract(fraud_reporting_artifacts);
-  candidates = {};
-  tokenPrice = null;
-
 
   constructor() {
     if (typeof this.web3 !== 'undefined') {
@@ -51,11 +34,13 @@ export class BlockchainService {
   }
 
   public async getBountiesCounter() {
-    this.FraudReporting.deployed().then( (contractInstance) => {
-      contractInstance.bountiesCounter.call().then( (bountiesCounter) => {
-        return bountiesCounter.toString();
-      });
-    })
+    const contractInstance = await this.FraudReporting.deployed();
+    return await contractInstance.bountiesCounter.call();
+  }
+
+  public async getFraudReportsCounter() {
+    const contractInstance = await this.FraudReporting.deployed();
+    return await contractInstance.fraudReportsCounter.call();
   }
 
   public async getBalanceForAccountAddress(address) {
@@ -66,11 +51,13 @@ export class BlockchainService {
     return this.FraudReporting.deployed();
   }
 
-  public rewardBounty(fraudReportId: number, fromAddress: string, etherReward) {
-    this.FraudReporting.deployed().then( (contractInstance) => {
-      contractInstance.rewardBountyToFraudReport(fraudReportId, {from: fromAddress, value: etherReward * 10**18, gas:4000000}).then( (res) => {
-        console.log(res);
-      }).catch(error=> console.error(error));
-    })
+  public async rewardBounty(fraudReportId: number, fromAddress: string, etherReward) {
+    const contractInstance = await this.FraudReporting.deployed();
+    return await contractInstance.rewardBountyToFraudReport(fraudReportId, {from: fromAddress, value: etherReward * 10**18, gas:4000000});
+    // this.FraudReporting.deployed().then( (contractInstance) => {
+    //   contractInstance.rewardBountyToFraudReport(fraudReportId, {from: fromAddress, value: etherReward * 10**18, gas:4000000}).then( (res) => {
+    //     console.log(res);
+    //   }).catch(error=> console.error(error));
+    // })
   }
 }
