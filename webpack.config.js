@@ -177,6 +177,7 @@ const webpackEnv = {
       })
     ],
     devServer: {
+      disableHostCheck: true,
       contentBase: OUTPUT_PATH,
       historyApiFallback: true,
       stats: STATS

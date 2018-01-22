@@ -32,10 +32,10 @@ export class AppComponent {
     this.watchAccount();
     this.BlockchainService.getAccounts();
     
-    setInterval(() => {this.refreshAccountsAndBalances()}, 10000);
-    setInterval(() => {this.refreshBountiesCounter()}, 5000);
-    setInterval(() => {this.refreshFraudReportsCounter()}, 4000);
-    setInterval(() => {this.refreshEthereumPrice()}, 2000);
+    setInterval(() => {this.refreshAccountsAndBalances()}, 3000);
+    setInterval(() => {this.refreshBountiesCounter()}, 2000);
+    setInterval(() => {this.refreshFraudReportsCounter()}, 2000);
+    setInterval(() => {this.refreshEthereumPrice()}, 1000);
   }
 
   refreshEthereumPrice() {
